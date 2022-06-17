@@ -25,7 +25,7 @@ router = routers.SimpleRouter()
 
 router.register('Contributor', ContributorViewset, basename="contributor")
 router.register('Comment', CommentViewset, basename="comment")
-router.register('Project', ProjectViewset, basename="project")
+router.register('projects', ProjectViewset, basename="projects")
 router.register('Issue', IssueViewset, basename="issue")
 
 

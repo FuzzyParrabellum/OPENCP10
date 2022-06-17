@@ -1,11 +1,26 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.forms import CharField
+from django.forms import CharField, EmailField
 from django.conf import settings
 # Create your models here.
 
 class Users(AbstractUser):
-    pass
+
+    
+    user_id = models.IntegerField(default=0, primary_key=True)
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=20)
+
+    username = None
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    def save(self, *args, **kwargs):
+        self.user_id = self.user_id + 1
+        super().save(*args, **kwargs)
+
 
 class Contributors(models.Model):
 
@@ -24,7 +39,7 @@ class Projects(models.Model):
         ('android', 'Android')
     ]
 
-    project_id = models.IntegerField()
+    project_id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     type = models.CharField(choices=PROJECT_TYPES, max_length=7)

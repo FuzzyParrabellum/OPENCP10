@@ -12,8 +12,12 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 
+from pandas import Timedelta
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -103,6 +107,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = 'Troubleshootapp.Users'
+# ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -125,3 +133,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES':\
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME':Timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME':Timedelta(days=1),
+    'USER_ID_FIELD':'user_id'
+}
