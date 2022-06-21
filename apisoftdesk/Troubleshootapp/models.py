@@ -6,7 +6,6 @@ from django.conf import settings
 
 class Users(AbstractUser):
 
-    
     user_id = models.IntegerField(default=0, primary_key=True)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
@@ -19,7 +18,8 @@ class Users(AbstractUser):
 
     def save(self, *args, **kwargs):
         self.user_id = self.user_id + 1
-        super().save(*args, **kwargs)
+        super(Users, self).save(*args, **kwargs)
+
 
 
 class Contributors(models.Model):
@@ -46,6 +46,12 @@ class Projects(models.Model):
     # Doit compléter la ForeignKey en-dessous
     author_user_key = models.ForeignKey(\
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def get_author_name(self):
+        author = Users.objects.filter(user_id=self.author_user_key)
+        author_name = author.first_name + author.last_name
+        return author_name
+
 
 class Issues(models.Model):
 

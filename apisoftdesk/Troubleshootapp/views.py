@@ -4,12 +4,23 @@ from Troubleshootapp.permissions import IsNotAuthenticated
 from rest_framework import mixins, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet, GenericViewSet
+from rest_framework.permissions import IsAuthenticated
 
 
 from Troubleshootapp.models import Contributors, Issues, Comments, Projects, Users
 from Troubleshootapp.serializers import ContributorSerializer, IssueSerializer, \
-    CommentSerializer, ProjectSerializer, SignUpSerializer
+    CommentSerializer, ProjectListSerializer, ProjectDetailSerializer, SignUpSerializer
 # Create your views here.
+
+
+class MultipleSerializerMixin:
+
+    detail_serializer_class = None
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve' and self.detail_serializer_class is not None:
+            return self.detail_serializer_class
+        return super().get_serializer_class()
 
 class ContributorViewset(ModelViewSet):
 
@@ -32,10 +43,13 @@ class CommentViewset(ModelViewSet):
     def get_queryset(self):
         return Comments.objects.all()
 
-class ProjectViewset(ModelViewSet):
+class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 
-    serializer_class = ProjectSerializer
-    # detail_serializer_class = CategoryDetailSerializer
+    permissions_classes = [IsAuthenticated]
+
+    serializer_class = ProjectListSerializer
+    detail_serializer_class = ProjectDetailSerializer
+    
 
     def get_queryset(self):
         return Projects.objects.all()
@@ -51,6 +65,6 @@ class SignUpViewset(GenericViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(serializer)
+        serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)

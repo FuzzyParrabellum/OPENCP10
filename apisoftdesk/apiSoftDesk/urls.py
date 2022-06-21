@@ -19,7 +19,8 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework import routers
 
-from Troubleshootapp.views import ContributorViewset, CommentViewset, ProjectViewset, IssueViewset
+from Troubleshootapp.views import ContributorViewset, CommentViewset, \
+    ProjectViewset, IssueViewset, SignUpViewset
 
 router = routers.SimpleRouter()
 
@@ -27,13 +28,14 @@ router.register('Contributor', ContributorViewset, basename="contributor")
 router.register('Comment', CommentViewset, basename="comment")
 router.register('projects', ProjectViewset, basename="projects")
 router.register('Issue', IssueViewset, basename="issue")
+router.register('signup', SignUpViewset, basename="signup")
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/', include(router.urls))
+    path('', include(router.urls))
 
 ]
