@@ -43,21 +43,22 @@ class CommentViewset(ModelViewSet):
     def get_queryset(self):
         return Comments.objects.all()
 
-class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
-
+# class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
+class ProjectViewset(ModelViewSet):
+    queryset = Projects.objects.all()
     permissions_classes = [IsAuthenticated, IsAuthor]
 
     serializer_class = ProjectListSerializer
-    detail_serializer_class = ProjectDetailSerializer
+    #detail_serializer_class = ProjectDetailSerializer
 
-    def get_object(self):
-        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
-        self.check_object_permissions(self.request, obj)
-        return obj
+    # def get_object(self):
+    #     obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+    #     self.check_object_permissions(self.request, obj)
+    #     return obj
     
 
-    def get_queryset(self):
-        return Projects.objects.all()
+    # def get_queryset(self):
+    #    return Projects.objects.all()
 
 class SignUpViewset(GenericViewSet):
 
