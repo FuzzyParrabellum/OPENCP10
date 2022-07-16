@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from Troubleshootapp.permissions import IsNotAuthenticated
+from django.shortcuts import render, get_object_or_404
+from Troubleshootapp.permissions import IsNotAuthenticated, IsAuthor
 # from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework import mixins, status
 from rest_framework.response import Response
@@ -45,10 +45,15 @@ class CommentViewset(ModelViewSet):
 
 class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 
-    permissions_classes = [IsAuthenticated]
+    permissions_classes = [IsAuthenticated, IsAuthor]
 
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
+
+    def get_object(self):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
     
 
     def get_queryset(self):

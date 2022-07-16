@@ -6,7 +6,9 @@ from django.conf import settings
 
 class Users(AbstractUser):
 
-    user_id = models.IntegerField(default=0, primary_key=True)
+    # USER_ID = 0
+    user_id = models.IntegerField(primary_key=True)
+    # user_id = models.IntegerField(default=0, primary_key=True)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
     email = models.EmailField(unique=True)
@@ -16,18 +18,29 @@ class Users(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    def save(self, *args, **kwargs):
-        self.user_id = self.user_id + 1
-        super(Users, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.user_id = self.user_id + 1
+    #     super(Users, self).save(*args, **kwargs)
+        
+    # def save(self, *args, **kwargs):
+    #     self.user_id = self.USER_ID + 1
+    #     super(Users, self).save(*args, **kwargs)
+    #     print(f"CREATION NOUVEL UTILISATEUR USER_ID EST DE {self.USER_ID}")
 
 
 
 class Contributors(models.Model):
 
+    CONTRIBUTOR_TYPES = [
+        ('author', 'author'),
+        ('contributor', 'contributor')
+    ]
+
     user_id = models.IntegerField()
     project_id = models.IntegerField()
     # IIMPORTANT : apparrement choicefield se trouve plutôt sur forms, que faire de l'info?
     # permission = models.ChoiceField()
+    permission = models.CharField(choices=CONTRIBUTOR_TYPES, max_length=11)
     role = models.CharField(max_length=255)
 
 class Projects(models.Model):

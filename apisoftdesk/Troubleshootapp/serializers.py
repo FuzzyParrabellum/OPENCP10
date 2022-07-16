@@ -6,7 +6,15 @@ from Troubleshootapp.models import Contributors, Issues, Comments, Projects, Use
 
 
 class ContributorSerializer(ModelSerializer):
-    pass
+
+    class Meta:
+        model = Contributors
+        fields = ["user_id", "project_id", "role", "permission"]
+
+    # peut vérifier ici au moment de créer le contributeur si il n'est pas déjà 
+    # l'auteur du projet, dans ce cas ne pas autoriser de le mettre en contributeur
+    # faudrait aussi peut-être vérifier que l'utilisateur n'est pas déjà contributeur
+    # sur le projet
 
 class IssueSerializer(ModelSerializer):
     pass

@@ -24,12 +24,15 @@ from Troubleshootapp.views import ContributorViewset, CommentViewset, \
 
 router = routers.SimpleRouter()
 
-router.register('Contributor', ContributorViewset, basename="contributor")
+router.register(r'projects/(?P<project_pk>\d+)/users/?$', ContributorViewset, basename="contributor")
 router.register('Comment', CommentViewset, basename="comment")
 router.register('projects', ProjectViewset, basename="projects")
 router.register('Issue', IssueViewset, basename="issue")
 router.register('signup', SignUpViewset, basename="signup")
-
+# bout de code montrant comment faire un nested router
+# url(r'^libraries/(?P<library_pk>\d+)/books/?$', views.BookViewSet.as_view({'get': 'list'}), name='library-book-list')
+# # Get details of a book in a library
+# url(r'^libraries/(?P<library_pk>\d+)/books/(?P<pk>\d+)/?$', views.BookViewSet.as_view({'get': 'retrieve'}), name='library-book-detail')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
