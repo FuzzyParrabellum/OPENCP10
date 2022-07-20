@@ -4,6 +4,7 @@ from Troubleshootapp.models import Users, Projects, Contributors
 
 class IsNotAuthenticated(BasePermission):
     def has_permission(self, request, view):
+        print("HAS_PERMISSION de isnotauthenticated est bien appelé")
         return bool(not request.user.is_authenticated)
 
 class IsCollaborator(BasePermission):
@@ -25,17 +26,20 @@ class IsCollaborator(BasePermission):
 
 class IsAuthor(BasePermission):
     print("------------ISAUTHOR EST BIEN APPELLE-------------")
-    
+
     def has_object_permission(self, request, view, obj):
         print("-----HAS_OBJECT_PERMISSION EST BIEN APPELLE-----")
         authenticated_user = request.user
-        user_id = obj.user_id
+        user_id = obj.author_user_key
         project_id = obj.project_id
 
-        current_project = Projects.Objects.get(project_id=project_id)
+        current_project = Projects.objects.get(project_id=project_id)
         author_id = current_project.author_user_key
 
-        return user_id == author_id
+        print(f"user_id est de {user_id}")
+        print(f"author_id est de {author_id}")
+        print(f"authenticated_user est de {authenticated_user}")
+        return authenticated_user == author_id
     
 """
 Le but de la premiere permission IsAuthor serait de check si la personne connectée
