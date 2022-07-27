@@ -25,7 +25,24 @@ class MultipleSerializerMixin:
 
 class ContributorViewset(ModelViewSet):
 
+    permission_classes = [IsAuthenticated]
+
     serializer_class = ContributorSerializer
+
+    def list(self, request, projects_pk=None):
+        queryset = Contributors.objects.filter(project_id=projects_pk)
+        serializer = ContributorSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, projects_pk=None):
+        queryset = Contributors.objects.filter(project_id=projects_pk)
+        serializer = ContributorSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def delete(self, request, pk=None, projects_pk=None):
+        contributor_to_remove = get_object_or_404(Contributors, pk=pk, projects_pk=projects_pk)
+        contributor_to_remove.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset(self):
         return Contributors.objects.all()
@@ -57,7 +74,6 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
        return Projects.objects.all()
 
     def get_object(self):
-        print("-----------GET_OBJECT EST APPELE---------")
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
         self.check_object_permissions(self.request, obj)
         return obj
@@ -76,7 +92,6 @@ class SignUpViewset(ModelViewSet):
     serializer_class = SignUpSerializer
 
     def create(self, request, *args, **kwargs):
-        print("CREATE EST APPELLE")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

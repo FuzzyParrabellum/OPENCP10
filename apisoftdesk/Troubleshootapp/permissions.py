@@ -28,7 +28,6 @@ class IsAuthor(BasePermission):
     print("------------ISAUTHOR EST BIEN APPELLE-------------")
 
     def has_object_permission(self, request, view, obj):
-        print("-----HAS_OBJECT_PERMISSION EST BIEN APPELLE-----")
         authenticated_user = request.user
         user_id = obj.author_user_key
         project_id = obj.project_id
