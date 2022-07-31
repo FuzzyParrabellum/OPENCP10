@@ -156,3 +156,5 @@ SIMPLE_JWT = {
     'USER_ID_FIELD':'user_id',
     
 }
+
+# APPEND_SLASH = True

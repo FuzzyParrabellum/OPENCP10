@@ -16,6 +16,12 @@ class ContributorSerializer(ModelSerializer):
     # faudrait aussi peut-être vérifier que l'utilisateur n'est pas déjà contributeur
     # sur le projet
 
+class ContributorDetailSerializer(ModelSerializer):
+
+        class Meta:
+            model = Contributors
+            fields = ["user_id", "project_id", "role", "permission"]
+
 class IssueSerializer(ModelSerializer):
     pass
 

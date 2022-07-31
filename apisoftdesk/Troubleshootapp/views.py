@@ -10,7 +10,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from Troubleshootapp.models import Contributors, Issues, Comments, Projects, Users
 from Troubleshootapp.serializers import ContributorSerializer, IssueSerializer, \
-    CommentSerializer, ProjectListSerializer, ProjectDetailSerializer, SignUpSerializer
+    CommentSerializer, ProjectListSerializer, ProjectDetailSerializer, SignUpSerializer, \
+    ContributorDetailSerializer
 # Create your views here.
 
 
@@ -19,17 +20,23 @@ class MultipleSerializerMixin:
     detail_serializer_class = None
 
     def get_serializer_class(self):
+        print("------get-serializer-class est bien appellée----")
         if self.action == 'retrieve' and self.detail_serializer_class is not None:
+            return self.detail_serializer_class
+        if self.action == 'destroy' and self.detail_serializer_class is not None:
+            print("-------L'action delete est bien appellée--------")
             return self.detail_serializer_class
         return super().get_serializer_class()
 
-class ContributorViewset(ModelViewSet):
+class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
 
     permission_classes = [IsAuthenticated]
 
     serializer_class = ContributorSerializer
+    detail_serializer_class = ContributorDetailSerializer
 
     def list(self, request, projects_pk=None):
+        print("ACTION LISTE BIEN APPELLEE")
         queryset = Contributors.objects.filter(project_id=projects_pk)
         serializer = ContributorSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -39,13 +46,26 @@ class ContributorViewset(ModelViewSet):
         serializer = ContributorSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def delete(self, request, pk=None, projects_pk=None):
-        contributor_to_remove = get_object_or_404(Contributors, pk=pk, projects_pk=projects_pk)
+    def destroy(self, request, pk=None, projects_pk=None):
+        print("l'action de delete est bien appellée dans contributorVIEWSET")
+        contributor_to_remove = get_object_or_404(Contributors, user_id=pk, project_id=projects_pk)
+        # queryset = Contributors.objects.filter(project_id=projects_pk)
+        # for contributor_to_remove in queryset:
         contributor_to_remove.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def retrieve(self, request, pk=None, projects_pk=None):
+        print("l'action de retrieve est bien appellée dans contributorVIEWSET")
+        queryset = get_object_or_404(Contributors, user_id=pk, project_id=projects_pk)
+        # queryset = Contributors.objects.filter(user_id=pk, project_id=projects_pk)
+        serializer = ContributorSerializer(queryset)
+        return Response(serializer.data)
+
     def get_queryset(self):
+        print("get_queryset est bien appellée")
         return Contributors.objects.all()
+
+
 
 class IssueViewset(ModelViewSet):
 

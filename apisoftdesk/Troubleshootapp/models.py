@@ -1,8 +1,28 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.forms import CharField, EmailField
 from django.conf import settings
 # Create your models here.
+
+
+class UserManager(BaseUserManager):
+
+    use_in_migrations: True
+
+    def create_user(self, email, password, is_staff=False, is_superuser=False):
+        if not email:
+            raise ValueError('Users require an email field')
+        email = self.normalize_email(email)
+        user = self.model(email=email)
+        user.is_superuser = is_superuser
+        user.is_staff = is_staff
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password):
+        user = self.create_user(email, password=password, is_staff=True, is_superuser=True)
+        return user
 
 class Users(AbstractUser):
 
@@ -14,9 +34,12 @@ class Users(AbstractUser):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=20)
 
+
     username = None
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
+
+    objects = UserManager()
 
     # def save(self, *args, **kwargs):
     #     self.user_id = self.user_id + 1
@@ -26,6 +49,8 @@ class Users(AbstractUser):
     #     self.user_id = self.USER_ID + 1
     #     super(Users, self).save(*args, **kwargs)
     #     print(f"CREATION NOUVEL UTILISATEUR USER_ID EST DE {self.USER_ID}")
+
+    
 
 
 
@@ -42,6 +67,9 @@ class Contributors(models.Model):
     # permission = models.ChoiceField()
     permission = models.CharField(choices=CONTRIBUTOR_TYPES, max_length=11)
     role = models.CharField(max_length=255)
+
+    def __str__(self):
+        return "Utilisateur {} Projet {}".format(self.user_id, self.project_id)
 
 class Projects(models.Model):
 

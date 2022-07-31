@@ -22,11 +22,12 @@ from rest_framework_nested import routers
 from Troubleshootapp.views import ContributorViewset, CommentViewset, \
     ProjectViewset, IssueViewset, SignUpViewset
 
-router = routers.SimpleRouter()
-router.register(r'projects', ProjectViewset, basename="projects")
+router = routers.SimpleRouter(trailing_slash=False)
+# router = routers.SimpleRouter()
+router.register(r'projects/?', ProjectViewset, basename="projects")
 
-project_router = routers.NestedSimpleRouter(router, r'projects', lookup='projects')
-project_router.register(r'users', ContributorViewset, basename='contributor')
+project_router = routers.NestedSimpleRouter(router, r'projects/?', lookup='projects')
+project_router.register(r'users/?', ContributorViewset, basename='contributors')
 
 # router.register(r'^projects/(?P<projects_pk>\d+)/users/?$', ContributorViewset, basename="contributor")
 router.register('Comment', CommentViewset, basename="comment")
