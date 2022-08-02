@@ -28,11 +28,11 @@ router.register(r'projects/?', ProjectViewset, basename="projects")
 
 project_router = routers.NestedSimpleRouter(router, r'projects/?', lookup='projects')
 project_router.register(r'users/?', ContributorViewset, basename='contributors')
-
+project_router.register(r'issues/?', IssueViewset, basename='issues')
 # router.register(r'^projects/(?P<projects_pk>\d+)/users/?$', ContributorViewset, basename="contributor")
 router.register('Comment', CommentViewset, basename="comment")
 # router.register('projects', ProjectViewset, basename="projects")
-router.register('Issue', IssueViewset, basename="issue")
+# router.register('Issue', IssueViewset, basename="issue")
 router.register('signup', SignUpViewset, basename="signup")
 # bout de code montrant comment faire un nested router
 # url(r'^libraries/(?P<library_pk>\d+)/books/?$', views.BookViewSet.as_view({'get': 'list'}), name='library-book-list')

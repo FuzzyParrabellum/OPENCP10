@@ -71,6 +71,11 @@ class Contributors(models.Model):
     def __str__(self):
         return "Utilisateur {} Projet {}".format(self.user_id, self.project_id)
 
+    class Meta:
+        # La ligne ci-dessous permet de ne pas ajouter le même collaborateur deux fois
+        unique_together = ('user_id', 'project_id')
+
+
 class Projects(models.Model):
 
     PROJECT_TYPES = [

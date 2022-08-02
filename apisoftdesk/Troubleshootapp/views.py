@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from Troubleshootapp.permissions import IsNotAuthenticated, IsAuthor
+from Troubleshootapp.permissions import IsCollaborator, IsNotAuthenticated, IsAuthor
 # from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework import mixins, status
 from rest_framework.response import Response
@@ -30,7 +30,10 @@ class MultipleSerializerMixin:
 
 class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
 
-    permission_classes = [IsAuthenticated]
+    # est pour l'instant bloqué car il y aurait besoin d'un queryset de base (je pense)
+    # et non pas d'un queryset pour chaque méthode pour que get_object soit appelé
+    # et donc que la permission que l'on souhaite, isCollaborator soit appellée
+    permission_classes = [IsAuthenticated, IsCollaborator]
 
     serializer_class = ContributorSerializer
     detail_serializer_class = ContributorDetailSerializer
@@ -38,6 +41,8 @@ class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
     def list(self, request, projects_pk=None):
         print("ACTION LISTE BIEN APPELLEE")
         queryset = Contributors.objects.filter(project_id=projects_pk)
+        # queryset = self.get_queryset().objects.filter(project_id=projects_pk)
+        # self.check_object_permissions(self.request, projects_pk)
         serializer = ContributorSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -49,8 +54,6 @@ class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
     def destroy(self, request, pk=None, projects_pk=None):
         print("l'action de delete est bien appellée dans contributorVIEWSET")
         contributor_to_remove = get_object_or_404(Contributors, user_id=pk, project_id=projects_pk)
-        # queryset = Contributors.objects.filter(project_id=projects_pk)
-        # for contributor_to_remove in queryset:
         contributor_to_remove.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -65,11 +68,24 @@ class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
         print("get_queryset est bien appellée")
         return Contributors.objects.all()
 
+    def get_object(self):
+        ("le get_object de contributor est bien appelé")
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
 
 
 class IssueViewset(ModelViewSet):
 
     serializer_class = IssueSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, projects_pk=None):
+        queryset = Issues.objects.filter(project_id=projects_pk)
+        context = {"projects_pk": projects_pk}
+        serializer = ContributorSerializer(queryset, many=True, context=context)
+        return Response(serializer.data)
 
     def get_queryset(self):
         return Issues.objects.all()

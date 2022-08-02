@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-
+from django.shortcuts import get_object_or_404
 from Troubleshootapp.models import Users, Projects, Contributors
 
 class IsNotAuthenticated(BasePermission):
@@ -8,24 +8,28 @@ class IsNotAuthenticated(BasePermission):
         return bool(not request.user.is_authenticated)
 
 class IsCollaborator(BasePermission):
-    # premier check qui vérifie si est dans une liste de collaborateurs ou
-    # est un auteur, donne alors des droits de read etc.
-    # Pour ça il faudrait déjà que je puisse rajouter un collaborateur pour
-    # faire des tests
-    # ça suppose au moins trois users, un auteur, un collaborateur et juste un
-    # connecté pour voir ensuite leur niveau de permission
+    
     def has_object_permission(self, request, view, obj):
-        authenticated_user = request.user
-        user_id = obj.user_id
-        project_id = obj.project_id
+        print("has_object_permissione st bien appellé")
+        authenticated_user = request.user.user_id
+        # user_id = obj.user_id
+        # project_id = obj.project_id
+        project_id = obj
+        """on pourrait plutot juste regarder le request.user et le project_id, pour
+        voir le project_id on pourrait juste selectionner la 1ere entrée du queryset
+        et voir quel est son project_id avant de l'envoyer pour check la permission
+        ça permettrait d'utiliser cette permission pour les coments aussi je pense"""
+        print("perm va être appellé")
+        # perm = get_object_or_404(Contributors, user_id=authenticated_user, \
+        #                                         project_id=project_id)
+        collaborator_occurence = Contributors.objects.filter(project_id=project_id).\
+            filter(user_id=authenticated_user)
 
-        
-
+        return collaborator_occurence.exists()
     # deuxième check qui vérifie si est un auteur, donne alors plus de droits
     pass    
 
 class IsAuthor(BasePermission):
-    print("------------ISAUTHOR EST BIEN APPELLE-------------")
 
     def has_object_permission(self, request, view, obj):
         authenticated_user = request.user
