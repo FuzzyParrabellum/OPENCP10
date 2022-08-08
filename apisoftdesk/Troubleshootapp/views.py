@@ -83,8 +83,10 @@ class IssueViewset(ModelViewSet):
 
     def post(self, request, projects_pk=None):
         queryset = Issues.objects.filter(project_id=projects_pk)
-        context = {"projects_pk": projects_pk}
-        serializer = ContributorSerializer(queryset, many=True, context=context)
+        # context = {"projects_pk": projects_pk}
+        # serializer = IssueSerializer(queryset, many=True, context=context)
+        serializer = IssueSerializer(queryset, many=True)
+        serializer.save(author_user_key=request.user.user_id, project_id=projects_pk)
         return Response(serializer.data)
 
     def get_queryset(self):

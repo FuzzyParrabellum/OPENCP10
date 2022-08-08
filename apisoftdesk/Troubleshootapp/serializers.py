@@ -24,20 +24,24 @@ class ContributorDetailSerializer(ModelSerializer):
 
 class IssueSerializer(ModelSerializer):
 
-    author_user_key = PrimaryKeyRelatedField(many=True, read_only=True)
+    # author_user_key = PrimaryKeyRelatedField(queryset=Users.objects.all(), \
+    #     many=False, read_only=False)
 
     class Meta:
             model = Issues
-            fields = ["title", "desc", "tag", "priority", "status", "author_user_key"]
+            # fields = ["title", "desc", "tag", "priority", "status", "author_user_key"]
+            fields = ["title", "desc", "tag", "priority", "status"]
 
-    def create(self, validated_data):
-        projects_pk = self.context.get("projects_pk")
-        user_id = self.context['request'].user
-        print(f"projects_pk est bien égal à {projects_pk}")
-        print(f'user_id est égal à {user_id}')
-        print(f"self.context est égal à {self.context}")
-        return Issues.objects.create(author_user_key=user_id, \
-            project_id=2,**validated_data)
+    # def create(self, validated_data):
+    #     projects_pk = self.context.get("projects_pk")
+    #     user_id = self.context['request'].user
+    #     print(f'user_id est d abord égal à {user_id}')
+    #     # user_id = Users.objects.get(user_id=user_id)
+    #     print(f"projects_pk est bien égal à {projects_pk}")
+    #     print(f'user_id est égal à {user_id}')
+    #     print(f"self.context est égal à {self.context}")
+    #     return Issues.objects.create(author_user_key=user_id, project_id=2, \
+    #         **validated_data)
 
 
 class CommentSerializer(ModelSerializer):

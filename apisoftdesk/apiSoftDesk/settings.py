@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 
-from pandas import Timedelta
+from datetime import timedelta
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -151,8 +151,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME':Timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME':Timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME':timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME':timedelta(days=1),
     'USER_ID_FIELD':'user_id',
     
 }
