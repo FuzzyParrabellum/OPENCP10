@@ -26,12 +26,17 @@ class IssueSerializer(ModelSerializer):
 
     # author_user_key = PrimaryKeyRelatedField(queryset=Users.objects.all(), \
     #     many=False, read_only=False)
+    author_user_key = RelatedField(source='Users', read_only=True)
 
     class Meta:
             model = Issues
-            # fields = ["title", "desc", "tag", "priority", "status", "author_user_key"]
-            fields = ["title", "desc", "tag", "priority", "status"]
-
+            fields = ["title", "desc", "tag", "priority", "status", "author_user_key"]
+            # fields = ["title", "desc", "tag", "priority", "status"]
+            
+    def create(self, validated_data):
+        user_id = self.context['request'].user
+        print(f'user_id au moment de créer un projet est de {user_id}')
+        return Issues.objects.create(author_user_key=user_id, **validated_data)
     # def create(self, validated_data):
     #     projects_pk = self.context.get("projects_pk")
     #     user_id = self.context['request'].user

@@ -51,15 +51,18 @@ class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
         serializer = ContributorSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def destroy(self, request, pk=None, projects_pk=None):
+    def destroy(self, request, users_pk=None, projects_pk=None):
         print("l'action de delete est bien appellée dans contributorVIEWSET")
-        contributor_to_remove = get_object_or_404(Contributors, user_id=pk, project_id=projects_pk)
+        contributor_to_remove = get_object_or_404(Contributors, user_id=users_pk, \
+            project_id=projects_pk)
         contributor_to_remove.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"Success":"Le collaborateur a bien été supprimé du projet."}, \
+            status=status.HTTP_204_NO_CONTENT)
 
-    def retrieve(self, request, pk=None, projects_pk=None):
+    def retrieve(self, request, users_pk=None, projects_pk=None):
         print("l'action de retrieve est bien appellée dans contributorVIEWSET")
-        queryset = get_object_or_404(Contributors, user_id=pk, project_id=projects_pk)
+        queryset = get_object_or_404(Contributors, user_id=users_pk, \
+            project_id=projects_pk)
         # queryset = Contributors.objects.filter(user_id=pk, project_id=projects_pk)
         serializer = ContributorSerializer(queryset)
         return Response(serializer.data)
@@ -81,13 +84,14 @@ class IssueViewset(ModelViewSet):
     serializer_class = IssueSerializer
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, projects_pk=None):
-        queryset = Issues.objects.filter(project_id=projects_pk)
-        # context = {"projects_pk": projects_pk}
-        # serializer = IssueSerializer(queryset, many=True, context=context)
-        serializer = IssueSerializer(queryset, many=True)
-        serializer.save(author_user_key=request.user.user_id, project_id=projects_pk)
-        return Response(serializer.data)
+    # def create(self, request, projects_pk=None):
+    #     print("la methode create est bien appellée")
+    #     queryset = Issues.objects.filter(project_id=projects_pk)
+    #     # context = {"projects_pk": projects_pk}
+    #     # serializer = IssueSerializer(queryset, many=True, context=context)
+    #     serializer = IssueSerializer(queryset, many=True)
+    #     # serializer.save(author_user_key=request.user.user_id, project_id=projects_pk)
+    #     return Response(serializer.data)
 
     def get_queryset(self):
         return Issues.objects.all()
