@@ -128,8 +128,22 @@ class Issues(models.Model):
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='author')
     # Doit compléter la ForeignKey en-dessous
     assignee_user_key = models.ForeignKey(\
-        to=settings.AUTH_USER_MODEL, default=author_user_key, on_delete=models.SET_DEFAULT, related_name='assignee')
+        to=settings.AUTH_USER_MODEL, \
+            # default=Users.objects.get(user_id=author_user_key).user_id, \
+             \
+            on_delete=models.SET_NULL, null=True, related_name='assignee')
+    # le paramètre defaut=author_user_key ci-dessous cause des problèmes, va voir pour
+    # plutôt mettre la valeur par default dans le serializer pendant la création
+    # assignee_user_key = models.ForeignKey(\
+    #     to=settings.AUTH_USER_MODEL, default=author_user_key, \
+    #         on_delete=models.SET_DEFAULT, related_name='assignee')
     created_time = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        print(f"assignee_user_key est égal à {self.assignee_user_key}")
+        if self.assignee_user_key == None:
+            self.assignee_user_key = self.author_user_key
+        super(Issues, self).save(*args, **kwargs)
 
 class Comments(models.Model):
 

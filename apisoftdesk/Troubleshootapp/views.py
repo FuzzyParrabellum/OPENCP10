@@ -84,13 +84,20 @@ class IssueViewset(ModelViewSet):
     serializer_class = IssueSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["projects_pk"] = self.request.parser_context['kwargs']['projects_pk']
+        return context
     # def create(self, request, projects_pk=None):
     #     print("la methode create est bien appellée")
-    #     queryset = Issues.objects.filter(project_id=projects_pk)
+    #     # queryset = Issues.objects.filter(project_id=projects_pk)
+    #     queryset = Issues.objects.all()
+
     #     # context = {"projects_pk": projects_pk}
     #     # serializer = IssueSerializer(queryset, many=True, context=context)
-    #     serializer = IssueSerializer(queryset, many=True)
-    #     # serializer.save(author_user_key=request.user.user_id, project_id=projects_pk)
+    #     serializer = IssueSerializer(queryset, many=True, context={"projects_pk":"projects_pk"})
+    #     # if serializer.is_valid():
+    #     #     serializer.save(author_user_key=request.user.user_id, project_id=projects_pk)
     #     return Response(serializer.data)
 
     def get_queryset(self):

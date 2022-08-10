@@ -33,6 +33,7 @@ router.register(r'projects/(?P<projects_pk>\d+)/users/?$', \
     views.ContributorViewset, basename='contributors')
 router.register(r'projects/(?P<projects_pk>\d+)/issues/?$', \
     views.IssueViewset, basename='issues')
+router.register(r'signup/?', views.SignUpViewset, basename="signup")
 # router.register(r'projects/(?P<projects_pk>\d+)/users/(?P<users_pk>\d+)/?$', \
 #     views.ContributorViewset, basename='contributors-detail')
 
