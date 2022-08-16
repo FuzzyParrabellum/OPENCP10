@@ -50,9 +50,16 @@ urlpatterns = [
     path('projects/<int:projects_pk>/users/<int:users_pk>', \
     views.ContributorViewset.as_view({'get':'retrieve', 'delete':'destroy'}), \
         name='contributors-detail'),
-    path('projects/<int:projects_pk>/issues/', \
-    views.IssueViewset.as_view({'post':'create'}), \
-        name='issues')
+    path('projects/<int:projects_pk>/issues/', 
+        views.IssueViewset.as_view({'post':'create'}), name='issues'),
+    path('projects/<int:projects_pk>/issues/<int:pk>',
+        views.IssueViewset.as_view({'delete':'destroy', 'put':'update'}),
+        name='issues_detail'),
+    path('projects/<int:projects_pk>/issues/<int:issues_pk>/comments/', 
+        views.CommentViewset.as_view({'post':'create', 'get':'list'}), name='comments'),
+    path('projects/<int:projects_pk>/issues/<int:issues_pk>/comments/<int:pk>',
+        views.CommentViewset.as_view({'delete':'destroy', 'put':'update', 'get':'retrieve'}),
+        name='comments_detail'),
     
 ]
 

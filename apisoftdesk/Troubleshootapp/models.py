@@ -129,8 +129,6 @@ class Issues(models.Model):
     # Doit compléter la ForeignKey en-dessous
     assignee_user_key = models.ForeignKey(\
         to=settings.AUTH_USER_MODEL, \
-            # default=Users.objects.get(user_id=author_user_key).user_id, \
-             \
             on_delete=models.SET_NULL, null=True, related_name='assignee')
     # le paramètre defaut=author_user_key ci-dessous cause des problèmes, va voir pour
     # plutôt mettre la valeur par default dans le serializer pendant la création
@@ -147,7 +145,7 @@ class Issues(models.Model):
 
 class Comments(models.Model):
 
-    comment_id = models.IntegerField()
+    comment_id = models.IntegerField(primary_key=True)
     description = models.CharField(max_length=255)
     # Doit compléter la ForeignKey en-dessous
     author_user_id = models.ForeignKey(\

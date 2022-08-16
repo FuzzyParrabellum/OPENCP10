@@ -24,34 +24,36 @@ class ContributorDetailSerializer(ModelSerializer):
 
 class IssueSerializer(ModelSerializer):
 
-    # author_user_key = PrimaryKeyRelatedField(queryset=Users.objects.all(), \
-    #     many=False, read_only=False)
-    # author_user_key = RelatedField(source='Users', read_only=True)
-    # assignee_user_key = RelatedField(source='Users', read_only=True)
-
     class Meta:
             model = Issues
-            # fields = ["title", "desc", "tag", "priority", "status", "author_user_key"]
-            fields = ["title", "desc", "tag", "priority", "status", "assignee_user_key"]
+            fields = ["author_user_key", "title", "desc", "tag", "priority", "status", "assignee_user_key"]
             optional_fields = ["assignee_user_key"]
-    # def create(self, validated_data):
-    #     user_id = self.context['request'].user.user_id
-    #     print(f'user_id au moment de créer un projet est de {user_id}')
-    #     our_issue = Issues.objects.create(**validated_data)
-    #     our_issue.author_user_key = user_id
-    #     return our_issue
+            read_only_fields = ["author_user_key"]
+
     def create(self, validated_data, **kwargs):
         projects_pk = self.context["projects_pk"]
         user_id = self.context['request'].user
-        # default_assignee = self.initial_data['assignee_user_key']
-        # print(f"default assignee est égal à {default_assignee}")
-        # print(f"self.context est égal à {self.context}")
+        
         return Issues.objects.create(author_user_key=user_id, project_id=projects_pk, \
             **validated_data)
 
 
 class CommentSerializer(ModelSerializer):
-    pass
+    
+    class Meta:
+            model = Comments
+            fields = ["comment_id", "description", "author_user_id", \
+                "issue_id", "created_time"]
+            read_only_fields = ["comment_id",'author_user_id', "issue_id", \
+                "created_time"]
+
+    def create(self, validated_data, **kwargs):
+        # projects_pk = self.context["projects_pk"]
+        issues_pk = Issues.objects.get(id=self.context["issues_pk"])
+        user_id = self.context['request'].user
+        
+        return Comments.objects.create(author_user_id=user_id, \
+            issue_id=issues_pk ,**validated_data)
 
 class ProjectListSerializer(ModelSerializer):
     
@@ -62,7 +64,7 @@ class ProjectListSerializer(ModelSerializer):
     class Meta:
         model = Projects
         fields = ["title", "description", "type", "author_user_key"]
-        # read_only_fields = ["project_id", "author_user_key"]
+        read_only_fields = ["project_id", "author_user_key"]
 
     def create(self, validated_data):
         user_id = self.context['request'].user
@@ -76,6 +78,7 @@ class ProjectDetailSerializer(ModelSerializer):
     class Meta:
         model = Projects
         fields = ["project_id", "title", "description", "type", "author_user_key"]
+        read_only_fields = ["project_id", "author_user_key"]
 
 class SignUpSerializer(ModelSerializer):
 
