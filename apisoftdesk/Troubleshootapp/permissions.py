@@ -9,28 +9,72 @@ class IsNotAuthenticated(BasePermission):
 
 class IsCollaborator(BasePermission):
     
-    def has_object_permission(self, request, view, obj):
-        print("has_object_permission est bien appellé")
-        authenticated_user = request.user.user_id
-        # user_id = obj.user_id
-        # project_id = obj.project_id
-        project_id = obj
-        """on pourrait plutot juste regarder le request.user et le project_id, pour
-        voir le project_id on pourrait juste selectionner la 1ere entrée du queryset
-        et voir quel est son project_id avant de l'envoyer pour check la permission
-        ça permettrait d'utiliser cette permission pour les coments aussi je pense"""
-        print("perm va être appellé")
-        # perm = get_object_or_404(Contributors, user_id=authenticated_user, \
-        #                                         project_id=project_id)
-        collaborator_occurence = Contributors.objects.filter(project_id=project_id).\
-            filter(user_id=authenticated_user)
+    def has_permission(self, request, view):
+        print("HAS_PERMISSION EST BIEN APPELE")
+        if view.__str__() == "CommentViewset":
+            print("has_permission est bien appellé")
+            authenticated_user = request.user.user_id
+            project_id = request.parser_context['kwargs']['projects_pk']
+            collaborator_occurence = Contributors.objects.filter(project_id=project_id).\
+                filter(user_id=authenticated_user)
+            project_author = Projects.objects.filter(project_id=project_id,
+            author_user_key=request.user)
+            return collaborator_occurence.exists() or project_author.exists()
+        # quand comment est appelé
+        elif view.__str__() == "IssueViewset":
+            print("has_permission est bien appellé")
+            authenticated_user = request.user.user_id
+            project_id = request.parser_context['kwargs']['projects_pk']
+            
+            collaborator_occurence = Contributors.objects.filter(project_id=project_id).\
+                filter(user_id=authenticated_user)
+            project_author = Projects.objects.filter(project_id=project_id,
+            author_user_key=request.user)
+            return collaborator_occurence.exists() or project_author.exists()
 
-        return collaborator_occurence.exists()
-    # deuxième check qui vérifie si est un auteur, donne alors plus de droits
-    pass    
+        else:
+            return False  
+
+    def has_object_permission(self, request, view, obj):
+        print("HAS OBJECT PERMISSION EST BIEN APPELE")
+        # quand project est appelé
+        if view.__str__() == "ProjectViewset":
+            print("has_object_permission est bien appellé")
+            authenticated_user = request.user.user_id
+            project_id = obj.project_id
+            
+            # perm = get_object_or_404(Contributors, user_id=authenticated_user, \
+            #                                         project_id=project_id)
+            collaborator_occurence = Contributors.objects.filter(project_id=project_id).\
+                filter(user_id=authenticated_user)
+            project_author = Projects.objects.filter(project_id=project_id,
+            author_user_key=request.user)
+            return collaborator_occurence.exists() or project_author.exists()
+        # quand issue est appelé
+        elif view.__str__() == "CommentViewset":
+            print("has_object_permission est bien appellé")
+            authenticated_user = request.user.user_id
+            project_id = request.parser_context['kwargs']['projects_pk']
+            collaborator_occurence = Contributors.objects.filter(project_id=project_id).\
+                filter(user_id=authenticated_user)
+            project_author = Projects.objects.filter(project_id=project_id,
+            author_user_key=request.user)
+            return collaborator_occurence.exists() or project_author.exists()
+        # quand comment est appelé
+        elif view.__str__() == "IssueViewset":
+            print("has_object_permission est bien appellé")
+            authenticated_user = request.user.user_id
+            project_id = request.parser_context['kwargs']['projects_pk']
+            collaborator_occurence = Contributors.objects.filter(project_id=project_id).\
+                filter(user_id=authenticated_user)
+            project_author = Projects.objects.filter(project_id=project_id,
+            author_user_key=request.user)
+            return collaborator_occurence.exists() or project_author.exists()
+
+        else:
+            return False  
 
 class IsAuthor(BasePermission):
-
 
     def has_object_permission(self, request, view, obj):
         if view.__str__() == "ProjectViewset":

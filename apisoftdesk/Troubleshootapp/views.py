@@ -89,7 +89,7 @@ class IssueViewset(ModelViewSet):
             self.permission_classes = [IsAuthenticated, IsAuthor]
         elif self.action in ['create', 'retrieve', 'list']:
             print("le deuxième conditionnel est rempli")
-            self.permission_classes = [IsAuthenticated]
+            self.permission_classes = [IsAuthenticated, IsCollaborator]
         else:
             self.permission_classes = [IsAdminUser]
         return super(IssueViewset, self).get_permissions()
@@ -181,9 +181,11 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
         if self.action in ['destroy', 'update']:
             print("le premier conditionnel est rempli")
             self.permission_classes = [IsAuthenticated, IsAuthor]
-        elif self.action in ['create', 'retrieve', 'list']:
+        elif self.action in ['create', 'list']:
             print("le deuxième conditionnel est rempli")
             self.permission_classes = [IsAuthenticated]
+        elif self.action in ['retrieve']:
+            self.permission_classes = [IsAuthenticated, IsCollaborator]
         else:
             self.permission_classes = [IsAdminUser]
         return super(ProjectViewset, self).get_permissions()

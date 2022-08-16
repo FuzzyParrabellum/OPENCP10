@@ -58,12 +58,12 @@ class CommentSerializer(ModelSerializer):
 class ProjectListSerializer(ModelSerializer):
     
     # author_user_key = Field(source='Projects.author_user_key')
-    author_user_key = RelatedField(source='Users', read_only=True)
+    # author_user_key = RelatedField(source='Users', read_only=True)
 
 
     class Meta:
         model = Projects
-        fields = ["title", "description", "type", "author_user_key"]
+        fields = ["project_id", "title", "description", "type", "author_user_key"]
         read_only_fields = ["project_id", "author_user_key"]
 
     def create(self, validated_data):
