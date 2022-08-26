@@ -11,10 +11,6 @@ class ContributorSerializer(ModelSerializer):
         model = Contributors
         fields = ["user_id", "project_id", "role", "permission"]
 
-    # peut vérifier ici au moment de créer le contributeur si il n'est pas déjà 
-    # l'auteur du projet, dans ce cas ne pas autoriser de le mettre en contributeur
-    # faudrait aussi peut-être vérifier que l'utilisateur n'est pas déjà contributeur
-    # sur le projet
 
 class ContributorDetailSerializer(ModelSerializer):
 
@@ -48,7 +44,6 @@ class CommentSerializer(ModelSerializer):
                 "created_time"]
 
     def create(self, validated_data, **kwargs):
-        # projects_pk = self.context["projects_pk"]
         issues_pk = Issues.objects.get(id=self.context["issues_pk"])
         user_id = self.context['request'].user
         
@@ -57,10 +52,6 @@ class CommentSerializer(ModelSerializer):
 
 class ProjectListSerializer(ModelSerializer):
     
-    # author_user_key = Field(source='Projects.author_user_key')
-    # author_user_key = RelatedField(source='Users', read_only=True)
-
-
     class Meta:
         model = Projects
         fields = ["project_id", "title", "description", "type", "author_user_key"]
@@ -68,7 +59,6 @@ class ProjectListSerializer(ModelSerializer):
 
     def create(self, validated_data):
         user_id = self.context['request'].user
-        print(f'user_id au moment de créer un projet est de {user_id}')
         return Projects.objects.create(author_user_key=user_id, **validated_data)
 
 

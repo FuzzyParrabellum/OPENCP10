@@ -41,17 +41,6 @@ class Users(AbstractUser):
 
     objects = UserManager()
 
-    # def save(self, *args, **kwargs):
-    #     self.user_id = self.user_id + 1
-    #     super(Users, self).save(*args, **kwargs)
-        
-    # def save(self, *args, **kwargs):
-    #     self.user_id = self.USER_ID + 1
-    #     super(Users, self).save(*args, **kwargs)
-    #     print(f"CREATION NOUVEL UTILISATEUR USER_ID EST DE {self.USER_ID}")
-
-    
-
 
 
 class Contributors(models.Model):
@@ -63,8 +52,6 @@ class Contributors(models.Model):
 
     user_id = models.IntegerField()
     project_id = models.IntegerField()
-    # IIMPORTANT : apparrement choicefield se trouve plutôt sur forms, que faire de l'info?
-    # permission = models.ChoiceField()
     permission = models.CharField(choices=CONTRIBUTOR_TYPES, max_length=11)
     role = models.CharField(max_length=255)
 
@@ -89,7 +76,6 @@ class Projects(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     type = models.CharField(choices=PROJECT_TYPES, max_length=7)
-    # Doit compléter la ForeignKey en-dessous
     author_user_key = models.ForeignKey(\
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -123,22 +109,17 @@ class Issues(models.Model):
     priority = models.CharField(max_length=6, choices=ISSUES_PRIORITIES)
     project_id = models.IntegerField()
     status = models.CharField(max_length=5, choices=ISSUES_STATUSES)
-    # Doit compléter la ForeignKey en-dessous
     author_user_key = models.ForeignKey(\
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='author')
-    # Doit compléter la ForeignKey en-dessous
     assignee_user_key = models.ForeignKey(\
         to=settings.AUTH_USER_MODEL, \
             on_delete=models.SET_NULL, null=True, related_name='assignee')
-    # le paramètre defaut=author_user_key ci-dessous cause des problèmes, va voir pour
-    # plutôt mettre la valeur par default dans le serializer pendant la création
-    # assignee_user_key = models.ForeignKey(\
-    #     to=settings.AUTH_USER_MODEL, default=author_user_key, \
-    #         on_delete=models.SET_DEFAULT, related_name='assignee')
     created_time = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        print(f"assignee_user_key est égal à {self.assignee_user_key}")
+        # On supercharge cette méthode afin de rajouter en assignee_user_key le créateur
+        # d'un problème en comportement par défaut, dans le cas ou celui-ci n'a pas
+        # explicitement désigné d'assignee pendant la création du problème.
         if self.assignee_user_key == None:
             self.assignee_user_key = self.author_user_key
         super(Issues, self).save(*args, **kwargs)
@@ -147,10 +128,7 @@ class Comments(models.Model):
 
     comment_id = models.IntegerField(primary_key=True)
     description = models.CharField(max_length=255)
-    # Doit compléter la ForeignKey en-dessous
     author_user_id = models.ForeignKey(\
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    # IMPORTANT : problème est qu'ici issue_id renvoie à Issues et non à Issues.id comme c'est impossible d'après bash
-    # de le faire
     issue_id = models.ForeignKey(Issues, on_delete=models.CASCADE, related_name='comments')
     created_time = models.DateTimeField(auto_now_add=True)

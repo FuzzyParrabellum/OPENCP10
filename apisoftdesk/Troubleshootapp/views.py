@@ -21,29 +21,21 @@ class MultipleSerializerMixin:
     detail_serializer_class = None
 
     def get_serializer_class(self):
-        print("------get-serializer-class est bien appellée----")
         if self.action == 'retrieve' and self.detail_serializer_class is not None:
             return self.detail_serializer_class
         if self.action == 'destroy' and self.detail_serializer_class is not None:
-            print("-------L'action delete est bien appellée--------")
             return self.detail_serializer_class
         return super().get_serializer_class()
 
 class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
 
-    # est pour l'instant bloqué car il y aurait besoin d'un queryset de base (je pense)
-    # et non pas d'un queryset pour chaque méthode pour que get_object soit appelé
-    # et donc que la permission que l'on souhaite, isCollaborator soit appellée
     permission_classes = [IsAuthenticated, IsCollaborator]
 
     serializer_class = ContributorSerializer
     detail_serializer_class = ContributorDetailSerializer
 
     def list(self, request, projects_pk=None):
-        print("ACTION LISTE BIEN APPELLEE")
         queryset = Contributors.objects.filter(project_id=projects_pk)
-        # queryset = self.get_queryset().objects.filter(project_id=projects_pk)
-        # self.check_object_permissions(self.request, projects_pk)
         serializer = ContributorSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -53,7 +45,6 @@ class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
         return Response(serializer.data)
 
     def destroy(self, request, users_pk=None, projects_pk=None):
-        print("l'action de delete est bien appellée dans contributorVIEWSET")
         contributor_to_remove = get_object_or_404(Contributors, user_id=users_pk, \
             project_id=projects_pk)
         contributor_to_remove.delete()
@@ -61,19 +52,15 @@ class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
             status=status.HTTP_204_NO_CONTENT)
 
     def retrieve(self, request, users_pk=None, projects_pk=None):
-        print("l'action de retrieve est bien appellée dans contributorVIEWSET")
         queryset = get_object_or_404(Contributors, user_id=users_pk, \
             project_id=projects_pk)
-        # queryset = Contributors.objects.filter(user_id=pk, project_id=projects_pk)
         serializer = ContributorSerializer(queryset)
         return Response(serializer.data)
 
     def get_queryset(self):
-        print("get_queryset est bien appellée")
         return Contributors.objects.all()
 
     def get_object(self):
-        ("le get_object de contributor est bien appelé")
         obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
         self.check_object_permissions(self.request, obj)
         return obj
@@ -83,12 +70,9 @@ class ContributorViewset(ModelViewSet, MultipleSerializerMixin):
 class IssueViewset(ModelViewSet):
 
     def get_permissions(self):
-        print("get_permissions est appellé")
         if self.action in ['destroy', 'update']:
-            print("le premier conditionnel est rempli")
             self.permission_classes = [IsAuthenticated, IsAuthor]
         elif self.action in ['create', 'retrieve', 'list']:
-            print("le deuxième conditionnel est rempli")
             self.permission_classes = [IsAuthenticated, IsCollaborator]
         else:
             self.permission_classes = [IsAdminUser]
@@ -102,29 +86,12 @@ class IssueViewset(ModelViewSet):
         return context
 
     def destroy(self, request, pk=None, projects_pk=None):
-        print("l'action de delete est bien appellée dans issueviewset")
         issue_to_remove = get_object_or_404(Issues, id=pk, \
             project_id=projects_pk)
         self.check_object_permissions(self.request, issue_to_remove)
         issue_to_remove.delete()
         return Response({"Success":"Le problème a bien été supprimé du projet."}, \
             status=status.HTTP_204_NO_CONTENT)
-
-    # def update(self, request, issues_pk=None, projects_pk=None):
-    #     print("l'action de put est bien appellée dans issueviewset")
-    #     issue_to_update = get_object_or_404(Issues, id=issues_pk, \
-    #         project_id=projects_pk)
-    # def create(self, request, projects_pk=None):
-    #     print("la methode create est bien appellée")
-    #     # queryset = Issues.objects.filter(project_id=projects_pk)
-    #     queryset = Issues.objects.all()
-
-    #     # context = {"projects_pk": projects_pk}
-    #     # serializer = IssueSerializer(queryset, many=True, context=context)
-    #     serializer = IssueSerializer(queryset, many=True, context={"projects_pk":"projects_pk"})
-    #     # if serializer.is_valid():
-    #     #     serializer.save(author_user_key=request.user.user_id, project_id=projects_pk)
-    #     return Response(serializer.data)
 
     def get_queryset(self):
         return Issues.objects.all()
@@ -135,28 +102,22 @@ class IssueViewset(ModelViewSet):
 class CommentViewset(ModelViewSet):
 
     def get_permissions(self):
-        print("get_permissions est appellé")
         if self.action in ['destroy', 'update']:
-            print("le premier conditionnel est rempli")
             self.permission_classes = [IsAuthenticated, IsAuthor]
         elif self.action in ['create', 'retrieve', 'list']:
-            print("le deuxième conditionnel est rempli")
             self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [IsAdminUser]
         return super(CommentViewset, self).get_permissions()
 
     serializer_class = CommentSerializer
-    # permission_classes = [IsAuthenticated, IsProjectAuthor]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        # context["projects_pk"] = self.request.parser_context['kwargs']['projects_pk']
         context["issues_pk"] = self.request.parser_context['kwargs']['issues_pk']
         return context
 
     def destroy(self, request, projects_pk=None, pk=None, issues_pk=None):
-        print("l'action de delete est bien appellée dans commentviewset")
         comment_to_remove = get_object_or_404(Comments, comment_id=pk, \
             issue_id=issues_pk)
         self.check_object_permissions(self.request, comment_to_remove)
@@ -171,18 +132,11 @@ class CommentViewset(ModelViewSet):
         return "CommentViewset"
 
 class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
-#class ProjectViewset(ModelViewSet):
-    
-    # queryset = Projects.objects.all()
-    # permission_classes = [IsAuthenticated, IsAuthor]
 
     def get_permissions(self):
-        print("get_permissions est appellé")
         if self.action in ['destroy', 'update']:
-            print("le premier conditionnel est rempli")
             self.permission_classes = [IsAuthenticated, IsAuthor]
         elif self.action in ['create', 'list']:
-            print("le deuxième conditionnel est rempli")
             self.permission_classes = [IsAuthenticated]
         elif self.action in ['retrieve']:
             self.permission_classes = [IsAuthenticated, IsCollaborator]
